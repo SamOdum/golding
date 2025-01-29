@@ -98,7 +98,7 @@ const handleSubmit = async () => {
               name="firstName"
               type="text"
               required
-              class="block relative px-3 py-2 w-full placeholder-gray-500 text-gray-100 rounded-md border border-gray-300 appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              class="block relative px-3 py-2 w-full placeholder-gray-500 text-gray-800 bg-gray-100 rounded-md border border-gray-400 appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="First Name"
             />
             <p v-if="errors.firstName" class="mt-1 text-sm text-red-600">
@@ -113,7 +113,7 @@ const handleSubmit = async () => {
               name="lastName"
               type="text"
               required
-              class="block relative px-3 py-2 w-full placeholder-gray-500 text-gray-100 rounded-md border border-gray-300 appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              class="block relative px-3 py-2 w-full placeholder-gray-500 text-gray-800 bg-gray-100 rounded-md border border-gray-400 appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="Last Name"
             />
             <p v-if="errors.lastName" class="mt-1 text-sm text-red-600">
@@ -128,7 +128,7 @@ const handleSubmit = async () => {
               name="email"
               type="email"
               required
-              class="block relative px-3 py-2 w-full placeholder-gray-500 text-gray-100 rounded-md border border-gray-300 appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              class="block relative px-3 py-2 w-full placeholder-gray-500 text-gray-800 bg-gray-100 rounded-md border border-gray-400 appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="Email"
             />
             <p v-if="errors.email" class="mt-1 text-sm text-red-600">
@@ -143,7 +143,7 @@ const handleSubmit = async () => {
               name="password"
               type="password"
               required
-              class="block relative px-3 py-2 w-full placeholder-gray-500 text-gray-100 rounded-md border border-gray-300 appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              class="block relative px-3 py-2 w-full placeholder-gray-500 text-gray-800 bg-gray-100 rounded-md border border-gray-400 appearance-none focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="Password"
             />
             <p v-if="errors.password" class="mt-1 text-sm text-red-600">
