@@ -3,14 +3,16 @@ import cors from "cors";
 import express from "express";
 import path from "path";
 import authRoutes from "./routes/auth.routes";
+import { getEnvVar } from "./utils/env";
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = parseInt(getEnvVar("PORT", "8000"));
+const CORS_ORIGIN = getEnvVar("CORS_ORIGIN", "http://localhost:5173");
 
 // Middleware
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    origin: CORS_ORIGIN,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],

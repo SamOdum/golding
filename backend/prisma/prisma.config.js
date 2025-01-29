@@ -1,12 +1,16 @@
-import dotenv from "dotenv";
 import path from "path";
+const { getEnvVar } = require("../src/utils/env");
 
-dotenv.config({ path: path.resolve(__dirname, "../../.env") });
-
-module.exports = {
+/** @type {import('@prisma/client').Prisma.PrismaClientOptions} */
+const config = {
   datasources: {
     db: {
-      url: process.env.DATABASE_URL,
+      url: getEnvVar(
+        "DATABASE_URL",
+        "postgresql://postgres:postgres@localhost:5432/golding"
+      ),
     },
   },
 };
+
+module.exports = config;

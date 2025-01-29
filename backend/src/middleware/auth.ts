@@ -1,8 +1,9 @@
 import { NextFunction, Response } from "express";
 import jwt from "jsonwebtoken";
 import { AuthRequest, JWTPayload } from "../types";
+import { getEnvVar } from "../utils/env";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+const JWT_SECRET = getEnvVar("JWT_SECRET", "dev-secret-key");
 
 export const authenticateToken = async (
   req: AuthRequest,
@@ -12,14 +13,14 @@ export const authenticateToken = async (
   const token = req.cookies.token;
 
   if (!token) {
-    return res.status(401).json({ message: "Authentication required" });
+    return res.status(401).json({ message: "Not authenticated" });
   }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
-    req.user = { id: decoded.id, email: decoded.email };
+    req.user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Invalid or expired token" });
+    return res.status(401).json({ message: "Invalid token" });
   }
 };

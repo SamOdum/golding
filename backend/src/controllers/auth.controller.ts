@@ -1,121 +1,139 @@
-import bcrypt from "bcrypt";
 import { Request, Response } from "express";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
-import { CookieOptions } from "../types";
+import { CookieOptions } from "express";
 import { loginSchema, RegisterSchema } from "../validations";
+import { getEnvVar } from "../utils/env";
 
-const JWT_SECRET = process.env.JWT_SECRET || "top-secret-key";
+const SALT_ROUNDS = 12;
+const TOKEN_EXPIRY = "24h";
 
-const COOKIE_OPTIONS: CookieOptions = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-  maxAge: 24 * 60 * 60 * 1000, // 24 hours
+const config = {
+  jwtSecret: getEnvVar("JWT_SECRET", "dev-secret-key"),
+  cookieOptions: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  } as const satisfies CookieOptions,
 };
 
-export const login = async (req: Request, res: Response) => {
-  console.log({ req: req.body });
+class AuthError extends Error {
+  constructor(
+    public message: string,
+    public statusCode: number = 400,
+    public details?: any
+  ) {
+    super(message);
+    this.name = "AuthError";
+  }
+}
 
+// Helper functions
+const createToken = (userId: string, email: string): string => {
+  return jwt.sign({ id: userId, email }, config.jwtSecret, {
+    expiresIn: TOKEN_EXPIRY,
+  });
+};
+
+const sanitizeUser = (user: any) => {
+  const { password, ...userWithoutPassword } = user;
+  return userWithoutPassword;
+};
+
+const handleError = (error: unknown, res: Response) => {
+  console.error("Auth error:", error);
+
+  if (error instanceof AuthError) {
+    return res.status(error.statusCode).json({
+      message: error.message,
+      details: error.details,
+    });
+  }
+
+  if (error instanceof z.ZodError) {
+    return res.status(400).json({
+      message: "Validation error",
+      details: error.errors,
+    });
+  }
+
+  return res.status(500).json({
+    message: "Internal server error",
+  });
+};
+
+// Controller methods
+export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
 
-    // Find user
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      throw new AuthError("Invalid credentials", 401);
     }
 
-    // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      throw new AuthError("Invalid credentials", 401);
     }
 
-    // Generate JWT
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    const token = createToken(user.id, user.email);
+    res.cookie("token", token, config.cookieOptions);
 
-    // Set HTTP-only cookie
-    res.cookie("token", token, COOKIE_OPTIONS);
-
-    // Return user data without password
-    const { password: _, ...userWithoutPassword } = user;
     return res.json({
       message: "Login successful",
-      user: userWithoutPassword,
+      user: sanitizeUser(user),
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res
-        .status(400)
-        .json({ message: "Invalid input", errors: error.errors });
-    }
-    return res.status(500).json({ message: "Internal server error" });
+    return handleError(error, res);
   }
 };
 
 export const register = async (req: Request, res: Response) => {
-  console.log({ req: req.body });
-
   try {
-    const { firstName, lastName, email, password } = RegisterSchema.parse(
-      req.body
-    );
+    const userData = RegisterSchema.parse(req.body);
 
-    // Check if user exists
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email: userData.email },
     });
-    console.log({ existingUser });
 
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      throw new AuthError("Email already registered");
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
 
-    // Create user
     const user = await prisma.user.create({
       data: {
-        firstName,
-        lastName,
-        email,
+        ...userData,
         password: hashedPassword,
       },
     });
 
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = user;
+    const token = createToken(user.id, user.email);
+    res.cookie("token", token, config.cookieOptions);
 
     return res.status(201).json({
-      message: "User created successfully",
-      user: userWithoutPassword,
+      message: "Registration successful",
+      user: sanitizeUser(user),
     });
   } catch (error) {
-    console.log({ error });
-    if (error instanceof z.ZodError) {
-      return res
-        .status(400)
-        .json({ message: "Invalid input", errors: error.errors });
-    }
-    return res.status(500).json({ message: "Internal server error" });
+    return handleError(error, res);
   }
 };
 
-export const getCurrentUser = async (req: any, res: Response) => {
-  console.log({ req: req.user });
-  if (!req.user) {
-    return res.status(401).json({ message: "Not authenticated" });
-  }
-
+export const getCurrentUser = async (
+  req: Request & { user?: any },
+  res: Response
+) => {
   try {
+    if (!req.user) {
+      throw new AuthError("Not authenticated", 401);
+    }
+
     const user = await prisma.user.findUnique({
       where: { email: req.user.email },
       select: {
@@ -127,19 +145,23 @@ export const getCurrentUser = async (req: any, res: Response) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      throw new AuthError("User not found", 404);
     }
 
-    res.json({
+    return res.json({
       message: "Success",
       user,
     });
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    return handleError(error, res);
   }
 };
 
 export const logout = async (_req: Request, res: Response) => {
-  res.clearCookie("token", COOKIE_OPTIONS);
-  res.json({ message: "Logged out successfully" });
+  try {
+    res.clearCookie("token", config.cookieOptions);
+    return res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    return handleError(error, res);
+  }
 };

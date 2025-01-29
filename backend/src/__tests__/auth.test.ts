@@ -2,6 +2,7 @@ import { Express } from "express";
 import jwt from "jsonwebtoken";
 import request from "supertest";
 import { prisma } from "../lib/prisma";
+import { getEnvVar } from "../utils/env";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -39,7 +40,7 @@ describe("Authentication API", () => {
       const res = await request(app).post("/api/register").send(testUser);
 
       expect(res.status).toBe(201);
-      expect(res.body).toHaveProperty("message", "User created successfully");
+      expect(res.body).toHaveProperty("message", "Registration successful");
       expect(res.body.user).toHaveProperty("email", testUser.email);
       expect(res.body.user).toHaveProperty("firstName", testUser.firstName);
       expect(res.body.user).not.toHaveProperty("password");
@@ -108,11 +109,12 @@ describe("Authentication API", () => {
       const user = await prisma.user.findUnique({
         where: { email: testUser.email },
       });
-      authToken = jwt.sign(
+      const token = jwt.sign(
         { id: user?.id, email: user?.email },
-        process.env.JWT_SECRET || "top-secret-key",
-        { expiresIn: "24h" }
+        getEnvVar("JWT_SECRET", "test-secret-key"),
+        { expiresIn: "1h" }
       );
+      authToken = token;
     });
 
     it("should access protected route with valid token", async () => {
