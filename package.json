@@ -7,6 +7,8 @@
     "install:all": "pnpm install:backend && pnpm install:frontend",
     "install:backend": "cd backend && pnpm install",
     "install:frontend": "cd frontend && pnpm install",
+    "test": "pnpm test:backend",
+    "test:backend": "cd backend && pnpm test",
     "dev": "docker compose up --build",
     "clean": "docker compose down -v",
     "prod:build": "docker compose -f docker-compose.prod.yml build",
@@ -17,6 +19,7 @@
     "db:seed": "cd backend && pnpm db:seed"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.12.0"
   }
 }

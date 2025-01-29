@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
@@ -82,7 +82,7 @@ export const register = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         firstName,
         lastName,
@@ -91,7 +91,13 @@ export const register = async (req: Request, res: Response) => {
       },
     });
 
-    return res.status(201).json({ message: "User created successfully" });
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = user;
+
+    return res.status(201).json({
+      message: "User created successfully",
+      user: userWithoutPassword,
+    });
   } catch (error) {
     console.log({ error });
     if (error instanceof z.ZodError) {
