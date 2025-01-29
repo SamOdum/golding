@@ -41,26 +41,26 @@ let authInitialized = false;
 router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore();
 
-  // Perform initial auth check only once
-  if (!authInitialized) {
+  // Check auth state on page refresh or direct URL access
+  if (!authInitialized || to.name === undefined) {
+    authStore.loading = true;
     await authStore.checkAuth();
     authInitialized = true;
   }
 
-  // Wait for loading to complete
+  // Wait for authentication check to complete
   if (authStore.loading) {
-    // You might want to show a loading spinner here
-    return;
+    return; // Hold navigation until loading is complete
   }
 
   // Handle authentication requirements
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next("/login");
+    return next("/login");
   } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    next("/dashboard");
-  } else {
-    next();
+    return next("/dashboard");
   }
+  
+  return next();
 });
 
 export default router;

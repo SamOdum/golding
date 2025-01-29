@@ -11,11 +11,13 @@ const JWT_SECRET = process.env.JWT_SECRET || "top-secret-key";
 const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
+  sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
   maxAge: 24 * 60 * 60 * 1000, // 24 hours
 };
 
 export const login = async (req: Request, res: Response) => {
+  console.log({ req: req.body });
+
   try {
     const { email, password } = loginSchema.parse(req.body);
 
@@ -54,6 +56,8 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const register = async (req: Request, res: Response) => {
+  console.log({ req: req.body });
+
   try {
     const { firstName, lastName, email, password } = RegisterSchema.parse(
       req.body
@@ -63,6 +67,7 @@ export const register = async (req: Request, res: Response) => {
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
+    console.log({ existingUser });
 
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
@@ -83,6 +88,7 @@ export const register = async (req: Request, res: Response) => {
 
     return res.status(201).json({ message: "User created successfully" });
   } catch (error) {
+    console.log({ error });
     if (error instanceof z.ZodError) {
       return res
         .status(400)
@@ -93,7 +99,8 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const getCurrentUser = async (req: any, res: Response) => {
-  if (!req.userId) {
+  console.log({ req: req.user });
+  if (!req.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
 

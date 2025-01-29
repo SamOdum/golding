@@ -64,14 +64,17 @@ export const useAuthStore = defineStore("auth", {
     },
 
     async checkAuth() {
+      this.loading = true;
       try {
         const response = await api.get("/api/protected");
         const user: User = response.data.user;
         this.user = user;
         this.isAuthenticated = true;
+        return true;
       } catch (error) {
         this.user = null;
         this.isAuthenticated = false;
+        return false;
       } finally {
         this.loading = false;
       }
