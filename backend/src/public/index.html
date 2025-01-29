@@ -44,18 +44,42 @@
             margin-top: 20px;
         }
         .endpoint {
-            margin-bottom: 10px;
-            padding: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
             border-left: 3px solid #3498db;
+            background: white;
         }
         .endpoint:last-child {
             margin-bottom: 0;
         }
-        code {
-            background: #eee;
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .post {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        .get {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .description {
+            margin-top: 8px;
+            color: #666;
+        }
+        .auth-required {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
             padding: 2px 6px;
             border-radius: 4px;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            margin-left: 8px;
         }
     </style>
 </head>
@@ -63,23 +87,53 @@
     <div class="container">
         <div class="card">
             <h1>Authentication API</h1>
-            <span class="version">Version 1.0.0</span>
-            
-            <p>Welcome to the Authentication API. This service provides secure user authentication endpoints with JWT token-based security.</p>
+            <span class="version">v1.0.0</span>
             
             <div class="endpoints">
                 <h2>Available Endpoints</h2>
                 
                 <div class="endpoint">
-                    <h3>Authentication</h3>
-                    <p><code>POST /api/login</code> - User login</p>
-                    <p><code>POST /api/register</code> - New user registration</p>
-                    <p><code>GET /api/protected</code> - Protected route (requires authentication)</p>
+                    <span class="method post">POST</span>
+                    <span>/api/login</span>
+                    <div class="description">
+                        Authenticate user and create a session. Requires email and password in request body.
+                        Returns JWT token in HTTP-only cookie.
+                    </div>
                 </div>
-                
+
                 <div class="endpoint">
-                    <h3>System</h3>
-                    <p><code>GET /health</code> - API health check</p>
+                    <span class="method post">POST</span>
+                    <span>/api/register</span>
+                    <div class="description">
+                        Register a new user. Requires firstName, lastName, email, and password in request body.
+                        Creates user account and returns JWT token in HTTP-only cookie.
+                    </div>
+                </div>
+
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span>/api/logout</span>
+                    <div class="description">
+                        Logout current user by clearing authentication cookie.
+                    </div>
+                </div>
+
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span>/api/protected</span>
+                    <span class="auth-required">Auth Required</span>
+                    <div class="description">
+                        Get current authenticated user's information. 
+                        Requires valid JWT token in cookie.
+                    </div>
+                </div>
+
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span>/health</span>
+                    <div class="description">
+                        Health check endpoint. Returns server status.
+                    </div>
                 </div>
             </div>
         </div>

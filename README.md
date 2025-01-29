@@ -63,16 +63,17 @@ pnpm install:backend
 pnpm install:frontend
 ```
 
-### Development
+### How to Run
 
 #### Option 1: Using Docker (Recommended)
 
-Start the entire application stack with Docker Compose:
-**Note**: The environment variables `.env` must be present in the root of the project.
+**Note**: Make sure docker is running and the environment variables `.env` are present in the root of the project.
 
 ```bash
 pnpm docker:dev
 ```
+
+ After launch, you can access the frontend at `http://localhost:5173` and the backend at `http://localhost:8000`. To access the protected routes, you can either create your own account or use any of the seed user credentials at `./backend/prisma/seed.ts`.
 
 Stop and remove containers:
 
