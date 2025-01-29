@@ -44,7 +44,12 @@ export const login = async (req: Request, res: Response) => {
     // Set HTTP-only cookie
     res.cookie("token", token, COOKIE_OPTIONS);
 
-    return res.json({ message: "Login successful" });
+    // Return user data without password
+    const { password: _, ...userWithoutPassword } = user;
+    return res.json({
+      message: "Login successful",
+      user: userWithoutPassword,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res
@@ -121,7 +126,7 @@ export const getCurrentUser = async (req: any, res: Response) => {
 
     res.json({
       message: "Success",
-      data: { user },
+      user,
     });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });

@@ -1,5 +1,5 @@
-import api from "../lib/axios";
 import { defineStore } from "pinia";
+import api from "../lib/axios";
 import type {
   AuthState,
   LoginCredentials,
