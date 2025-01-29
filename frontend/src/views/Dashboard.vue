@@ -34,7 +34,7 @@ const handleLogout = async () => {
 
     <main class="px-4 py-6 w-full sm:px-6 lg:px-8">
       <div class="w-full">
-        <div class="p-4 h-96 text-gray-600 rounded-lg border-4 border-indigo-500">
+        <div class="p-4 h-96 text-gray-600 rounded-lg border-2 border-indigo-300">
           <h2 class="mb-4 text-2xl font-bold">Protected Content</h2>
           <p>This content is only visible to authenticated users.</p>
         </div>

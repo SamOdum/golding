@@ -1,20 +1,3 @@
-# FROM node:20-alpine
-
-# WORKDIR /app
-
-# # Install pnpm
-# RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# COPY package*.json ./
-
-# RUN pnpm install
-
-# COPY . .
-
-# EXPOSE 5173
-
-# CMD ["pnpm", "dev", "--host"]
-
 # Stage 1: Build
 FROM node:20-alpine AS builder
 
