@@ -1,43 +1,51 @@
 # Express.js Authentication API
 
-A secure authentication API built with Express.js and TypeScript.
+A secure authentication API built with Express.js, TypeScript, and PostgreSQL.
 
 ## Features
 
 - User authentication with JWT
-- Protected routes
-- Secure password hashing
+- Protected routes with middleware
+- Secure password hashing with bcrypt
 - HTTP-only cookies for token storage
+- PostgreSQL database with Prisma ORM
 - TypeScript support
 - Input validation with Zod
+- CORS protection
+- Automated tests
 
-## Authentication Flow
+## Prerequisites
 
-1. User registers with first name, last name, email, and password
-2. Password is hashed using bcrypt
-3. User logs in with email and password
-4. Server validates credentials and issues JWT
-5. JWT is stored in HTTP-only cookie
-6. Protected routes verify JWT token
-7. Access granted/denied based on token validity
+- Node.js and pnpm
+- PostgreSQL database
 
 ## Setup
 
 1. Install dependencies:
-
    ```bash
    pnpm install
    ```
 
-2. Create a .env file:
-
+2. Create a `.env` file:
    ```
-   PORT=3000
+   DATABASE_URL="postgresql://user:password@localhost:5432/golding"
+   PORT=8000
    JWT_SECRET=your-secret-key
    CORS_ORIGIN=http://localhost:5173
    ```
 
-3. Start the development server:
+3. Set up the database:
+   ```bash
+   pnpm prisma migrate dev
+   pnpm prisma generate
+   ```
+
+4. (Optional) Seed the database:
+   ```bash
+   pnpm prisma db seed
+   ```
+
+5. Start the development server:
    ```bash
    pnpm run dev
    ```
@@ -45,9 +53,9 @@ A secure authentication API built with Express.js and TypeScript.
 ## API Endpoints
 
 ### POST /api/register
-
 Register a new user
 
+Request body:
 ```json
 {
   "firstName": "firstName123",
@@ -58,9 +66,9 @@ Register a new user
 ```
 
 ### POST /api/login
-
 Login with credentials
 
+Request body:
 ```json
 {
   "email": "user123@example.com",
@@ -68,15 +76,32 @@ Login with credentials
 }
 ```
 
-### GET /api/protected
+### POST /api/logout
+Logout current user (clears authentication cookie)
 
-Protected route requiring authentication
+### GET /api/protected
+Protected route requiring authentication. Returns current user information.
 
 ## Security Features
 
 - Password hashing with bcrypt
-- HTTP-only cookies
+- HTTP-only cookies with secure options
 - JWT token authentication
-- Input validation
-- CORS protection
-- Secure cookie options
+- Input validation and sanitization
+- CORS protection with configurable origin
+- Secure cookie options (httpOnly, secure, sameSite)
+- PostgreSQL with type-safe Prisma client
+
+## Development
+
+- Run tests: `pnpm test`
+- Format code: `pnpm format`
+- Lint code: `pnpm lint`
+
+## Docker Support
+
+The application includes Docker support for containerized deployment. Build and run using:
+
+```bash
+docker build -t golding-backend .
+docker run -p 8000:8000 golding-backend

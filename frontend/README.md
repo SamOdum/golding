@@ -1,54 +1,100 @@
-# Vue.js Authentication System
+# Vue.js Authentication Frontend
 
-A secure authentication system built with Vue.js 3, TypeScript, and Tailwind CSS.
+A modern authentication frontend built with Vue.js 3, TypeScript, and Tailwind CSS.
 
 ## Features
 
 - User authentication with email and password
-- Protected routes with navigation guards
+- Protected routes with Vue Router navigation guards
 - State management using Pinia
 - HTTP-only cookie based authentication
 - Responsive and clean UI with Tailwind CSS
-- Form validation
-- TypeScript support
+- Form validation with client-side error handling
+- TypeScript for type safety
+- Axios for API communication
+- VueUse utilities for composition functions
+- Vite for fast development and building
 
-## Authentication Flow
+## Prerequisites
 
-1. User enters credentials in the login form
-2. Credentials are validated on the client side
-3. If valid, credentials are sent to the backend API
-4. On successful authentication:
-   - Backend sets HTTP-only cookie
-   - User data is stored in Pinia store
-   - User is redirected to dashboard
-5. Protected routes check authentication status
-6. Logout clears the cookie and store state
+- Node.js and pnpm
+- Backend API running (default: http://localhost:8000)
 
 ## Project Setup
 
-```bash
-# Install dependencies
-pnpm install
+1. Install dependencies:
+   ```bash
+   pnpm install
+   ```
 
-# Start development server
-pnpm run dev
+2. Set up environment variables:
+   Create a `.env` file:
+   ```
+   VITE_API_URL=http://localhost:8000
+   ```
 
-# Build for production
-pnpm run build
-```
+3. Start development server:
+   ```bash
+   pnpm dev
+   ```
+
+4. Build for production:
+   ```bash
+   pnpm build
+   ```
+
+5. Preview production build:
+   ```bash
+   pnpm preview
+   ```
+
+## Available Routes
+
+- `/` - Dashboard (protected)
+- `/login` - Login page
+- `/signup` - Registration page
 
 ## API Integration
 
-Update the API endpoints in `src/stores/auth.ts` to match your backend:
+The API integration is handled through the auth store (`src/stores/auth.ts`):
 
-- POST /api/login - Login endpoint
-- POST /api/logout - Logout endpoint
-- GET /api/me - Get current user data
+### Endpoints
 
-## Security Considerations
+- `POST /api/login` - User login
+- `POST /api/register` - User registration
+- `POST /api/logout` - User logout
+- `GET /api/protected` - Get current user data
 
-- Uses HTTP-only cookies for token storage
-- Implements proper route guards
-- Validates user input
-- Handles authentication errors
-- Maintains secure session management
+### Authentication Store Features
+
+- Automatic authentication check on app start
+- Loading states for async operations
+- Error handling and messages
+- Type-safe state management
+- Persistent session handling
+
+## Security Features
+
+- HTTP-only cookies for token storage
+- Protected route navigation guards
+- Input validation before API calls
+- Secure session management
+- Automatic token verification
+- Error boundary handling
+
+## Development Tools
+
+- TypeScript for type checking
+- Vite for fast development
+- Vue Router for routing
+- Tailwind CSS for styling
+- Axios for API requests
+- Pinia for state management
+
+## Browser Support
+
+Supports all modern browsers:
+- Chrome
+- Firefox
+- Safari
+- Edge
