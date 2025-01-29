@@ -26,7 +26,7 @@ A secure authentication API built with Express.js and TypeScript.
 1. Install dependencies:
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. Create a .env file:
@@ -39,7 +39,7 @@ A secure authentication API built with Express.js and TypeScript.
 
 3. Start the development server:
    ```bash
-   npm run dev
+   pnpm run dev
    ```
 
 ## API Endpoints

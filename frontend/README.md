@@ -28,13 +28,13 @@ A secure authentication system built with Vue.js 3, TypeScript, and Tailwind CSS
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Start development server
-npm run dev
+pnpm run dev
 
 # Build for production
-npm run build
+pnpm run build
 ```
 
 ## API Integration
