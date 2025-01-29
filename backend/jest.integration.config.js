@@ -1,5 +1,5 @@
 /** @type {import('jest').Config} */
-module.exports = {
+const config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
@@ -9,3 +9,5 @@ module.exports = {
   globalTeardown: '<rootDir>/src/test/global.teardown.ts',
   testTimeout: 30000,
 };
+
+export default config;

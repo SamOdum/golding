@@ -1,9 +1,9 @@
 import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { AuthRequest, JWTPayload } from "../types";
-import { getEnvVar } from "../utils/env";
+import { env } from "../config/env";
 
-const JWT_SECRET = getEnvVar("JWT_SECRET", "dev-secret-key");
+const JWT_SECRET = env.JWT_SECRET;
 
 /**
  * Middleware to authenticate requests using JWT tokens

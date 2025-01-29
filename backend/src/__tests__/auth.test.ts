@@ -2,7 +2,7 @@ import { Express } from "express";
 import jwt from "jsonwebtoken";
 import request from "supertest";
 import { prisma } from "../lib/prisma";
-import { getEnvVar } from "../utils/env";
+import { env } from "../config/env";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -111,7 +111,7 @@ describe("Authentication API", () => {
       });
       const token = jwt.sign(
         { id: user?.id, email: user?.email },
-        getEnvVar("JWT_SECRET", "test-secret-key"),
+        env.JWT_SECRET,
         { expiresIn: "1h" }
       );
       authToken = token;

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ValidationChain, validationResult } from 'express-validator';
+import { ValidationChain, validationResult, ValidationError } from 'express-validator';
 
 /**
  * Middleware to validate request using express-validator rules
@@ -16,8 +16,8 @@ export const validate = (validations: ValidationChain[]) => {
     }
 
     return res.status(400).json({
-      errors: errors.array().map(err => ({
-        field: err.path,
+      errors: errors.array().map((err: ValidationError) => ({
+        field: err.type === 'field' ? err.path : err.type,
         message: err.msg
       }))
     });

@@ -1,21 +1,21 @@
-import { Request, Response } from "express";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import { z } from "zod";
-import { prisma } from "../lib/prisma";
-import { CookieOptions } from "express";
-import { loginSchema, RegisterSchema } from "../validations";
-import { getEnvVar } from "../utils/env";
+import bcrypt from 'bcrypt';
+import { CookieOptions, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
+import { z } from 'zod';
+import { env } from '../config/env';
+import { prisma } from '../lib/prisma';
+import { loginSchema, RegisterSchema } from '../validations';
+import { User } from '../types';
 
 const SALT_ROUNDS = 12;
-const TOKEN_EXPIRY = "24h";
+const TOKEN_EXPIRY = '24h';
 
 const config = {
-  jwtSecret: getEnvVar("JWT_SECRET", "dev-secret-key"),
+  jwtSecret: env.JWT_SECRET,
   cookieOptions: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
   } as const satisfies CookieOptions,
 };
@@ -32,7 +32,7 @@ class AuthError extends Error {
     public details?: any
   ) {
     super(message);
-    this.name = "AuthError";
+    this.name = 'AuthError';
   }
 }
 
@@ -53,8 +53,10 @@ const createToken = (userId: string, email: string): string => {
  * @param {any} user - The user object to sanitize
  * @returns {any} User object without sensitive information
  */
-const sanitizeUser = (user: any) => {
+const sanitizeUser = (user: User) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password, ...userWithoutPassword } = user;
+
   return userWithoutPassword;
 };
 
@@ -65,7 +67,7 @@ const sanitizeUser = (user: any) => {
  * @returns {Response} Error response
  */
 const handleError = (error: unknown, res: Response) => {
-  console.error("Auth error:", error);
+  console.error('Auth error:', error);
 
   if (error instanceof AuthError) {
     return res.status(error.statusCode).json({
@@ -76,13 +78,13 @@ const handleError = (error: unknown, res: Response) => {
 
   if (error instanceof z.ZodError) {
     return res.status(400).json({
-      message: "Validation error",
+      message: 'Validation error',
       details: error.errors,
     });
   }
 
   return res.status(500).json({
-    message: "Internal server error",
+    message: 'Internal server error',
   });
 };
 
@@ -98,19 +100,19 @@ export const login = async (req: Request, res: Response) => {
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      throw new AuthError("Invalid credentials", 401);
+      throw new AuthError('Invalid credentials', 401);
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      throw new AuthError("Invalid credentials", 401);
+      throw new AuthError('Invalid credentials', 401);
     }
 
     const token = createToken(user.id, user.email);
-    res.cookie("token", token, config.cookieOptions);
+    res.cookie('token', token, config.cookieOptions);
 
     return res.json({
-      message: "Login successful",
+      message: 'Login successful',
       user: sanitizeUser(user),
     });
   } catch (error) {
@@ -133,7 +135,7 @@ export const register = async (req: Request, res: Response) => {
     });
 
     if (existingUser) {
-      throw new AuthError("Email already registered");
+      throw new AuthError('Email already registered');
     }
 
     const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
@@ -146,10 +148,10 @@ export const register = async (req: Request, res: Response) => {
     });
 
     const token = createToken(user.id, user.email);
-    res.cookie("token", token, config.cookieOptions);
+    res.cookie('token', token, config.cookieOptions);
 
     return res.status(201).json({
-      message: "Registration successful",
+      message: 'Registration successful',
       user: sanitizeUser(user),
     });
   } catch (error) {
@@ -163,13 +165,10 @@ export const register = async (req: Request, res: Response) => {
  * @param {Response} res - Express response object
  * @returns {Promise<Response>} User information response
  */
-export const getCurrentUser = async (
-  req: Request & { user?: any },
-  res: Response
-) => {
+export const getCurrentUser = async (req: Request & { user?: any }, res: Response) => {
   try {
     if (!req.user) {
-      throw new AuthError("Not authenticated", 401);
+      throw new AuthError('Not authenticated', 401);
     }
 
     const user = await prisma.user.findUnique({
@@ -183,11 +182,11 @@ export const getCurrentUser = async (
     });
 
     if (!user) {
-      throw new AuthError("User not found", 404);
+      throw new AuthError('User not found', 404);
     }
 
     return res.json({
-      message: "Success",
+      message: 'Success',
       user,
     });
   } catch (error) {
@@ -203,8 +202,8 @@ export const getCurrentUser = async (
  */
 export const logout = async (req: Request, res: Response) => {
   try {
-    res.clearCookie("token", config.cookieOptions);
-    return res.json({ message: "Logged out successfully" });
+    res.clearCookie('token', config.cookieOptions);
+    return res.json({ message: 'Logged out successfully' });
   } catch (error) {
     return handleError(error, res);
   }
