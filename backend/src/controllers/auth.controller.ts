@@ -20,6 +20,11 @@ const config = {
   } as const satisfies CookieOptions,
 };
 
+/**
+ * Custom error class for authentication-related errors
+ * @class AuthError
+ * @extends {Error}
+ */
 class AuthError extends Error {
   constructor(
     public message: string,
@@ -31,18 +36,34 @@ class AuthError extends Error {
   }
 }
 
-// Helper functions
+/**
+ * Creates a JWT token for a user
+ * @param {string} userId - The user's ID
+ * @param {string} email - The user's email
+ * @returns {string} The generated JWT token
+ */
 const createToken = (userId: string, email: string): string => {
   return jwt.sign({ id: userId, email }, config.jwtSecret, {
     expiresIn: TOKEN_EXPIRY,
   });
 };
 
+/**
+ * Removes sensitive information from user object
+ * @param {any} user - The user object to sanitize
+ * @returns {any} User object without sensitive information
+ */
 const sanitizeUser = (user: any) => {
   const { password, ...userWithoutPassword } = user;
   return userWithoutPassword;
 };
 
+/**
+ * Handles errors in authentication routes
+ * @param {unknown} error - The error to handle
+ * @param {Response} res - Express response object
+ * @returns {Response} Error response
+ */
 const handleError = (error: unknown, res: Response) => {
   console.error("Auth error:", error);
 
@@ -65,7 +86,12 @@ const handleError = (error: unknown, res: Response) => {
   });
 };
 
-// Controller methods
+/**
+ * Authenticates a user and creates a session
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @returns {Promise<Response>} Authentication response
+ */
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
@@ -92,6 +118,12 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Registers a new user and creates a session
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @returns {Promise<Response>} Registration response
+ */
 export const register = async (req: Request, res: Response) => {
   try {
     const userData = RegisterSchema.parse(req.body);
@@ -125,6 +157,12 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Gets the current authenticated user's information
+ * @param {Request & { user?: any }} req - Express request object with user
+ * @param {Response} res - Express response object
+ * @returns {Promise<Response>} User information response
+ */
 export const getCurrentUser = async (
   req: Request & { user?: any },
   res: Response
@@ -138,9 +176,9 @@ export const getCurrentUser = async (
       where: { email: req.user.email },
       select: {
         id: true,
+        email: true,
         firstName: true,
         lastName: true,
-        email: true,
       },
     });
 
@@ -157,7 +195,13 @@ export const getCurrentUser = async (
   }
 };
 
-export const logout = async (_req: Request, res: Response) => {
+/**
+ * Logs out the current user by clearing their session
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @returns {Promise<Response>} Logout response
+ */
+export const logout = async (req: Request, res: Response) => {
   try {
     res.clearCookie("token", config.cookieOptions);
     return res.json({ message: "Logged out successfully" });

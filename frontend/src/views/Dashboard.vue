@@ -20,7 +20,7 @@ const handleLogout = async () => {
             <h1 class="text-xl font-semibold text-gray-800">Dashboard</h1>
           </div>
           <div class="flex items-center">
-            <span class="mr-4 text-gray-600">Welcome, <span class="capitalize">{{ authStore.user?.firstName }}</span></span>
+            <span class="hidden mr-4 text-gray-600 md:block">Welcome, <span class="capitalize">{{ authStore.user?.firstName }}</span></span>
             <button
               @click="handleLogout"
               class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"

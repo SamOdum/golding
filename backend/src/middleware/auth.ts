@@ -1,10 +1,25 @@
-import { NextFunction, Response } from "express";
+import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { AuthRequest, JWTPayload } from "../types";
 import { getEnvVar } from "../utils/env";
 
 const JWT_SECRET = getEnvVar("JWT_SECRET", "dev-secret-key");
 
+/**
+ * Middleware to authenticate requests using JWT tokens
+ *
+ * This middleware:
+ * 1. Extracts the JWT token from cookies
+ * 2. Verifies the token's validity
+ * 3. Attaches the decoded user id and email to the request object
+ *
+ * @param {AuthRequest} req - Express request object with auth extensions
+ * @param {Response} res - Express response object
+ * @param {NextFunction} next - Express next function
+ * @returns {Promise<void | Response>} Continues to next middleware or returns error response
+ *
+ * @throws {Response} 401 if token is missing or invalid
+ */
 export const authenticateToken = async (
   req: AuthRequest,
   res: Response,
