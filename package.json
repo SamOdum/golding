@@ -15,5 +15,8 @@
     "db:generate": "cd backend && pnpm db:generate",
     "db:migrate": "cd backend && pnpm db:migrate",
     "db:seed": "cd backend && pnpm db:seed"
+  },
+  "devDependencies": {
+    "@types/node": "^22.12.0"
   }
 }
