@@ -21,6 +21,8 @@
     "test:setup": "docker compose -f compose.test.yml up -d && sleep 5 && pnpm --filter golding-backend prisma:deploy",
     "test": "pnpm test:setup && pnpm -r test && docker compose -f compose.test.yml down",
     "test:backend": "pnpm test:setup && pnpm --filter golding-backend test && docker compose -f compose.test.yml down",
+    "test:integration": "pnpm test:setup && pnpm --filter golding-backend test:integration && docker compose -f compose.test.yml down",
+    "test:e2e": "pnpm test:setup && pnpm --filter golding-frontend test:e2e && docker compose -f compose.test.yml down",
     "db:generate": "pnpm --filter golding-backend prisma:generate",
     "db:migrate": "pnpm --filter golding-backend prisma:migrate",
     "db:seed": "pnpm --filter golding-backend prisma:seed",
@@ -34,13 +36,18 @@
     "lint": "pnpm -r lint",
     "format": "pnpm -r format",
     "type-check": "pnpm -r type-check",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "validate:env": "node scripts/validate-env.js",
+    "dedupe": "pnpm dedupe",
+    "release": "release-it"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/node": "^22.12.0",
+    "cross-env": "^7.0.3",
     "husky": "^8.0.0",
     "lint-staged": "^15.4.3",
-    "prettier": "^3.4.2"
+    "prettier": "^3.4.2",
+    "release-it": "^17.0.3"
   }
 }

@@ -1,25 +1,46 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import path from "path";
 import authRoutes from "./routes/auth.routes";
-import { getEnvVar } from "./utils/env";
+import { env } from "./config/env";
 
 const app = express();
-const PORT = parseInt(getEnvVar("PORT", "8000"));
-const CORS_ORIGIN = getEnvVar("CORS_ORIGIN", "http://localhost:5173");
+const PORT = parseInt(env.PORT, 10) || 8000;
 
-// Middleware
+// Security middleware
+app.use(helmet());
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: "Too many requests from this IP, please try again later"
+  })
+);
+
+// CORS configuration
 app.use(
   cors({
-    origin: CORS_ORIGIN,
+    origin: env.CORS_ORIGIN,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.use(express.json());
+
+// Body parsing middleware
+app.use(express.json({ limit: "10kb" })); // Limit body size
 app.use(cookieParser());
+
+// Security headers
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+  next();
+});
 
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, "public")));
